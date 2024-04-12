@@ -52,15 +52,12 @@ else
     if ! pulseaudio --check; then pulseaudio --start; fi
     until grep 5050 <(netstat -tulpn 2>&1); do sleep 1; done
 
-    if [ -z ${REC_CARD} ];then
-      arecord -f S16_LE -c${CHANNELS} -r48000 -t wav --max-file-time ${RECORDING_LENGTH} \
-        --use-strftime \
-        ${RECS_DIR}/%B-%Y/%d-%A/%F-birdnet-%H:%M:%S.wav
-    else
-      arecord -f S16_LE -c${CHANNELS} -r48000 -t wav --max-file-time ${RECORDING_LENGTH} \
-        -D "${REC_CARD}" \
-        --use-strftime \
-        ${RECS_DIR}/%B-%Y/%d-%A/%F-birdnet-%H:%M:%S.wav
-    fi
+    NOW="$(date --iso-8601=ns)"
+    OUT_DIR="$RECS_DIR/$(date -d "$NOW" +"%B-%Y/%d-%A")"
+    OUT_NAME="$(date -d "$NOW" +"%F")-birdnet-$(date -d "$NOW" +"%H:%M:%S").wav"
+    mkdir -p "$OUT_DIR"
+    ffmpeg -f alsa -c:a pcm_s16le -ac "$CHANNELS" -ar 48000 -t "$RECORDING_LENGTH"s \
+        -i "${REC_CARD:-default}" "$OUT_DIR/$OUT_NAME"
+
   ) 200>/var/lock/birdnet_recording.lock || echo "Already recording."
 fi
