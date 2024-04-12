@@ -56,8 +56,11 @@ else
     OUT_DIR="$RECS_DIR/$(date -d "$NOW" +"%B-%Y/%d-%A")"
     OUT_NAME="$(date -d "$NOW" +"%F")-birdnet-$(date -d "$NOW" +"%H:%M:%S").wav"
     mkdir -p "$OUT_DIR"
-    ffmpeg -f alsa -c:a pcm_s16le -ac "$CHANNELS" -ar 48000 -t "$RECORDING_LENGTH"s \
-        -i "${REC_CARD:-default}" "$OUT_DIR/$OUT_NAME"
+    ffmpeg -nostdin -loglevel "$LOGGING_LEVEL" \
+      -f alsa -i "${REC_CARD:-default}" \
+      -c:a pcm_s16le -ac "$CHANNELS" -ar 48000 \
+      -t "$RECORDING_LENGTH"s \
+      "$OUT_DIR/$OUT_NAME"
 
   ) 200>/var/lock/birdnet_recording.lock || echo "Already recording."
 fi
