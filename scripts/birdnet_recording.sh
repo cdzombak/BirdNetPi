@@ -47,20 +47,20 @@ if [ ! -z $RTSP_STREAM ];then
 
   done
 else
-  if ! pulseaudio --check;then pulseaudio --start;fi
-  if pgrep arecord &> /dev/null ;then
-    echo "Recording"
-  else
-    until grep 5050 <(netstat -tulpn 2>&1);do
-      sleep 1
-    done
+  (
+  flock -xn 200
+    if ! pulseaudio --check; then pulseaudio --start; fi
+    until grep 5050 <(netstat -tulpn 2>&1); do sleep 1; done
+
     if [ -z ${REC_CARD} ];then
-      arecord -f S16_LE -c${CHANNELS} -r48000 -t wav --max-file-time ${RECORDING_LENGTH}\
-	      --use-strftime ${RECS_DIR}/%B-%Y/%d-%A/%F-birdnet-%H:%M:%S.wav
+      arecord -f S16_LE -c${CHANNELS} -r48000 -t wav --max-file-time ${RECORDING_LENGTH} \
+        --use-strftime \
+        ${RECS_DIR}/%B-%Y/%d-%A/%F-birdnet-%H:%M:%S.wav
     else
-      arecord -f S16_LE -c${CHANNELS} -r48000 -t wav --max-file-time ${RECORDING_LENGTH}\
-        -D "${REC_CARD}" --use-strftime \
-	${RECS_DIR}/%B-%Y/%d-%A/%F-birdnet-%H:%M:%S.wav
+      arecord -f S16_LE -c${CHANNELS} -r48000 -t wav --max-file-time ${RECORDING_LENGTH} \
+        -D "${REC_CARD}" \
+        --use-strftime \
+        ${RECS_DIR}/%B-%Y/%d-%A/%F-birdnet-%H:%M:%S.wav
     fi
-  fi
+  ) 200>/var/lock/birdnet_recording.lock || echo "Already recording."
 fi
