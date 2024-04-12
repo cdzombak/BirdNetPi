@@ -35,12 +35,12 @@ if [[ ! -z ${RTSP_STREAM} ]];then
   fi
 
   ffmpeg -nostdin -loglevel $LOGGING_LEVEL -ac ${CHANNELS} -i ${SELECTED_RSTP_STREAM} -acodec libmp3lame \
-    -b:a 320k -ac ${CHANNELS} -content_type 'audio/mpeg' \
+    -b:a 192k -ac ${CHANNELS} -content_type 'audio/mpeg' \
     ${FREQSHIFT_OPT} \
     -f mp3 icecast://source:${ICE_PWD}@localhost:8000/stream -re
 else
-    -b:a 320k -ac ${CHANNELS} -content_type 'audio/mpeg' \
 	ffmpeg -nostdin -loglevel $LOGGING_LEVEL -ac ${CHANNELS} -f alsa -i ${REC_CARD:-default} -acodec libmp3lame \
+    -b:a 192k -ac ${CHANNELS} -content_type 'audio/mpeg' \
     ${FREQSHIFT_OPT} \
     -f mp3 icecast://source:${ICE_PWD}@localhost:8000/stream -re
 fi
