@@ -13,7 +13,10 @@ if [ "$LOGGING_LEVEL" == "info" ] || [ "$LOGGING_LEVEL" == "debug" ];then
 fi
 
 if [ "$ACTIVATE_FREQSHIFT_IN_LIVESTREAM" == "true" ]; then
-  FREQSHIFT_OPT='-af rubberband=pitch='${FREQSHIFT_LO}'/'${FREQSHIFT_HI}
+  [ -n "$FFMPEG_FILTER" ] && FFMPEG_FILTER="$FFMPEG_FILTER, "
+  FFMPEG_FILTER="-af ${FFMPEG_FILTER}rubberband=pitch=${FREQSHIFT_LO}/${FREQSHIFT_HI}"
+elif [ -n "$FFMPEG_FILTER" ]; then
+  FFMPEG_FILTER="-af $FFMPEG_FILTER"
 fi
 
 if [[ ! -z ${RTSP_STREAM} ]];then
@@ -36,11 +39,12 @@ if [[ ! -z ${RTSP_STREAM} ]];then
 
   ffmpeg -nostdin -loglevel $LOGGING_LEVEL -ac ${CHANNELS} -i ${SELECTED_RSTP_STREAM} -acodec libmp3lame \
     -b:a 192k -ac ${CHANNELS} -content_type 'audio/mpeg' \
-    ${FREQSHIFT_OPT} \
+    ${FFMPEG_FILTER} \
     -f mp3 icecast://source:${ICE_PWD}@localhost:8000/stream -re
-else
-	ffmpeg -nostdin -loglevel $LOGGING_LEVEL -ac ${CHANNELS} -f alsa -i ${REC_CARD:-default} -acodec libmp3lame \
-    -b:a 192k -ac ${CHANNELS} -content_type 'audio/mpeg' \
-    ${FREQSHIFT_OPT} \
+else # -loglevel "$LOGGING_LEVEL" ${FREQSHIFT_OPT} \
+	ffmpeg -nostdin \
+    -f alsa -i "${REC_CARD:-default}" -ac "$CHANNELS" \
+    ${FFMPEG_FILTER} \
+    -acodec libmp3lame -b:a 192k -content_type 'audio/mpeg' \
     -f mp3 icecast://source:${ICE_PWD}@localhost:8000/stream -re
 fi

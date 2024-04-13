@@ -13,6 +13,7 @@ if [ "$LOGGING_LEVEL" == "info" ] || [ "$LOGGING_LEVEL" == "debug" ];then
 fi
 
 [ -z $RECORDING_LENGTH ] && RECORDING_LENGTH=15
+[ -n "$FFMPEG_FILTER" ] && FFMPEG_FILTER="-af $FFMPEG_FILTER"
 
 if [ ! -z $RTSP_STREAM ];then
   [ -d $RECS_DIR/StreamData ] || mkdir -p $RECS_DIR/StreamData
@@ -42,7 +43,7 @@ if [ ! -z $RTSP_STREAM ];then
 
   # Make sure were passing something valid to ffmpeg, ffmpeg will run interactive and control our loop by waiting ${RECORDING_LENGTH} between loops because it will stop once that much has been recorded
   if [ -n "$FFMPEG_PARAMS" ];then
-    ffmpeg -hide_banner -loglevel $LOGGING_LEVEL -nostdin $FFMPEG_PARAMS
+    ffmpeg -hide_banner -loglevel $LOGGING_LEVEL -nostdin ${FFMPEG_FILTER} $FFMPEG_PARAMS
   fi
 
   done
@@ -56,9 +57,10 @@ else
     OUT_DIR="$RECS_DIR/$(date -d "$NOW" +"%B-%Y/%d-%A")"
     OUT_NAME="$(date -d "$NOW" +"%F")-birdnet-$(date -d "$NOW" +"%H:%M:%S").wav"
     mkdir -p "$OUT_DIR"
-    ffmpeg -nostdin -loglevel "$LOGGING_LEVEL" \
+    ffmpeg -nostdin -hide_banner -loglevel "$LOGGING_LEVEL" \
       -f alsa -i "${REC_CARD:-default}" \
-      -c:a pcm_s16le -ac "$CHANNELS" -ar 48000 \
+      -ac "$CHANNELS" -ar 48000 \
+      -c:a pcm_s16le ${FFMPEG_FILTER} \
       -t "$RECORDING_LENGTH"s \
       "$OUT_DIR/$OUT_NAME"
 
