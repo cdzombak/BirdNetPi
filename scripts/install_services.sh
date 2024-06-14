@@ -46,10 +46,10 @@ Description=BirdNET Analysis
 After=birdnet_server.service
 Requires=birdnet_server.service
 [Service]
-RuntimeMaxSec=900
+RuntimeMaxSec=60
 Restart=always
 Type=simple
-RestartSec=2
+RestartSec=10
 User=${USER}
 ExecStart=/usr/local/bin/birdnet_analysis.sh
 [Install]
@@ -67,7 +67,7 @@ Before=birdnet_analysis.service
 [Service]
 Restart=always
 Type=simple
-RestartSec=10
+RestartSec=15
 User=${USER}
 ExecStart=$PYTHON_VIRTUAL_ENV /usr/local/bin/server.py
 [Install]
