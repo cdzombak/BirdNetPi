@@ -24,10 +24,10 @@ http:// ${BIRDNETPI_URL} {
   basicauth /Processed* {
     birdnet ${HASHWORD}
   }
-  basicauth /scripts* {
+  basicauth /stream {
     birdnet ${HASHWORD}
   }
-  basicauth /stream {
+  basicauth /scripts* {
     birdnet ${HASHWORD}
   }
   basicauth /phpsysinfo* {
