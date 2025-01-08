@@ -13,7 +13,6 @@ if [ "$LOGGING_LEVEL" == "info" ] || [ "$LOGGING_LEVEL" == "debug" ];then
 fi
 
 [ -z $RECORDING_LENGTH ] && RECORDING_LENGTH=15
-[ -n "$FFMPEG_FILTER" ] && FFMPEG_FILTER="-af $FFMPEG_FILTER"
 
 mkdir -p "/var/spool/birdnet-pi/recording"
 
@@ -45,7 +44,7 @@ if [ ! -z $RTSP_STREAM ];then
 
   # Make sure were passing something valid to ffmpeg, ffmpeg will run interactive and control our loop by waiting ${RECORDING_LENGTH} between loops because it will stop once that much has been recorded
   if [ -n "$FFMPEG_PARAMS" ];then
-    ffmpeg -hide_banner -loglevel $LOGGING_LEVEL -nostdin ${FFMPEG_FILTER} $FFMPEG_PARAMS
+    ffmpeg -hide_banner -loglevel $LOGGING_LEVEL -nostdin $FFMPEG_PARAMS
   fi
 
   done
@@ -57,14 +56,19 @@ else
 
     NOW="$(date --iso-8601=ns)"
     OUT_DIR="$RECS_DIR/$(date -d "$NOW" +"%B-%Y/%d-%A")"
-    OUT_NAME="$(date -d "$NOW" +"%F")-birdnet-$(date -d "$NOW" +"%H:%M:%S").wav"
     mkdir -p "$OUT_DIR"
-    ffmpeg -nostdin -hide_banner -loglevel "$LOGGING_LEVEL" \
-      -f alsa -i "${REC_CARD:-default}" \
-      -ac "$CHANNELS" -ar 48000 \
-      -c:a pcm_s16le ${FFMPEG_FILTER} \
-      -t "$RECORDING_LENGTH"s \
-      "/var/spool/birdnet-pi/recording/$OUT_NAME"
+    OUT_NAME="$(date -d "$NOW" +"%F")-birdnet-$(date -d "$NOW" +"%H:%M:%S").wav"
+
+    if [ -z ${REC_CARD} ];then
+      arecord -f S16_LE -c${CHANNELS} -r48000 -t wav --max-file-time ${RECORDING_LENGTH} \
+        --use-strftime \
+        "/var/spool/birdnet-pi/recording/$OUT_NAME"
+    else
+      arecord -f S16_LE -c${CHANNELS} -r48000 -t wav --max-file-time ${RECORDING_LENGTH} \
+        -D "${REC_CARD}" \
+        --use-strftime \
+        "/var/spool/birdnet-pi/recording/$OUT_NAME"
+    fi
     mv "/var/spool/birdnet-pi/recording/$OUT_NAME" "$OUT_DIR/$OUT_NAME"
 
   ) 200>/var/lock/birdnet_recording.lock || echo "Already recording."

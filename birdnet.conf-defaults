@@ -145,13 +145,6 @@ FREQSHIFT_LO=3000
 ## FREQSHIFT_PITCH
 FREQSHIFT_PITCH=-1500
 
-## FFMPEG_FILTER
-## If set, this filter string is passed to -af _ahead_ of any frequency shift
-## and applies to both the livestream and recordings.
-FFMPEG_FILTER=
-## e.g. https://ffmpeg.org//ffmpeg-filters.html#afftdn ("Denoise audio samples with FFT")
-## FFMPEG_FILTER="afftdn=nr=10:nf=-50:nt=white:tn=1:ad=0.2:nl=none:gs=10"
-
 ## CHANNELS holds the variable that corresponds to the number of channels the
 ## sound card supports.
 
