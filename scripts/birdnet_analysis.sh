@@ -161,7 +161,7 @@ ${BIRDWEATHER_ID_LOG}
       ${BIRDWEATHER_ID_PARAM}
     if [ ! -z $HEARTBEAT_URL ]; then
       echo "Performing Heartbeat"
-      IP=`curl -s ${HEARTBEAT_URL}`
+      IP=`curl -sSL ${HEARTBEAT_URL}`
       echo "Heartbeat: $IP"
     fi
   done
