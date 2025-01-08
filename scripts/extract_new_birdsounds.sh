@@ -134,6 +134,10 @@ for h in "${SCAN_DIRS[@]}";do
         -c "${NEWSPECIES_BYDATE//$HOME\/}/${NEWFILE}" \
         -o "${NEWSPECIES_BYDATE}/${NEWFILE}.png"
     fi
+
+    if [ "$AUDIOFMT" = "mp3" ]; then
+      mid3v2 -p "${NEWSPECIES_BYDATE}/${NEWFILE}.png" "${NEWSPECIES_BYDATE}/${NEWFILE}"
+    fi
     
   done < "${TMPFILE}"
   
