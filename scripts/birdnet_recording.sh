@@ -56,11 +56,11 @@ else
 
     if [ -z ${REC_CARD} ];then
       arecord -f S16_LE -c${CHANNELS} -r48000 -t wav --max-file-time ${RECORDING_LENGTH} \
-        --use-strftime ${RECS_DIR}/%B-%Y/%d-%A/%F-birdnet-%H:%M:%S.wav
+        --use-strftime ${RECS_DIR}/%B-%Y/%d-%A/%F_birdnet_%H-%M-%S.wav
     else
       arecord -f S16_LE -c${CHANNELS} -r48000 -t wav --max-file-time ${RECORDING_LENGTH} \
         -D "${REC_CARD}" --use-strftime \
-        ${RECS_DIR}/%B-%Y/%d-%A/%F-birdnet-%H:%M:%S.wav
+        ${RECS_DIR}/%B-%Y/%d-%A/%F_birdnet_%H-%M-%S.wav
     fi
 
   ) 200>/var/lock/birdnet_recording.lock || echo "Already recording."
