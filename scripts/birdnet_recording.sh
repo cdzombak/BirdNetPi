@@ -15,6 +15,8 @@ fi
 [ -z $RECORDING_LENGTH ] && RECORDING_LENGTH=15
 [ -n "$FFMPEG_FILTER" ] && FFMPEG_FILTER="-af $FFMPEG_FILTER"
 
+mkdir -p "/var/spool/birdnet-pi/recording"
+
 if [ ! -z $RTSP_STREAM ];then
   [ -d $RECS_DIR/StreamData ] || mkdir -p $RECS_DIR/StreamData
   # Explode the RSPT steam setting into an array so we can count the number we have
@@ -62,7 +64,8 @@ else
       -ac "$CHANNELS" -ar 48000 \
       -c:a pcm_s16le ${FFMPEG_FILTER} \
       -t "$RECORDING_LENGTH"s \
-      "$OUT_DIR/$OUT_NAME"
+      "/var/spool/birdnet-pi/recording/$OUT_NAME"
+    mv "/var/spool/birdnet-pi/recording/$OUT_NAME" "$OUT_DIR/$OUT_NAME"
 
   ) 200>/var/lock/birdnet_recording.lock || echo "Already recording."
 fi

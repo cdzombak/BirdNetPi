@@ -23,6 +23,12 @@ fi
 sudo -E HOME=$HOME USER=$USER ./install_services.sh || exit 1
 source /etc/birdnet/birdnet.conf
 
+setup_ramdisk() {
+  echo 'tmpfs /var/spool/birdnet-pi  tmpfs  defaults,noatime,nosuid,nodev,noexec,size=50M  0  0' | sudo tee -a /etc/fstab > /dev/null
+  sudo mount -a
+  sudo chown "$USER":"$USER" /var/spool/birdnet-pi
+}
+
 install_birdnet() {
   cd ~/BirdNET-Pi || exit 1
   echo "Establishing a python virtual environment"
@@ -33,6 +39,7 @@ install_birdnet() {
 
 [ -d ${RECS_DIR} ] || mkdir -p ${RECS_DIR} &> /dev/null
 
+setup_ramdisk
 install_birdnet
 
 cd $my_dir/scripts || exit 1
